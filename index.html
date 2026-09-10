@@ -28,7 +28,15 @@
   }
 
   *{ box-sizing: border-box; }
-  html{ scroll-behavior: smooth; }
+  html{ scroll-behavior: smooth; interpolate-size: allow-keywords; }
+
+  /* Ouverture/fermeture fluide des chantiers (dégrade proprement si non supporté) */
+  details.project::details-content{
+    transition: content-visibility .25s allow-discrete, block-size .25s ease;
+    block-size: 0;
+    overflow: clip;
+  }
+  details.project[open]::details-content{ block-size: auto; }
 
   body{
     margin:0;
@@ -90,29 +98,58 @@
   .stat.teal .stat-num{ color: var(--teal); }
   .stat.ochre .stat-num{ color: var(--ochre); }
 
+  .tab-bar{ display: flex; gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px; width: fit-content; margin-bottom: 20px; }
+  .tab-btn{ border: none; background: none; color: var(--ink-soft); padding: 8px 18px; border-radius: 999px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .tab-btn[aria-selected="true"]{ background: var(--ink); color: #fff; }
+
   .controls{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 28px; position: sticky; top: 0; background: var(--bg); padding: 14px 0; z-index: 5; }
-  .search-input{ flex: 1 1 220px; padding: 9px 12px; border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); font-family: inherit; font-size: 14px; color: var(--ink); }
+  .search-input{ flex: 1 1 220px; padding: 9px 12px 9px 34px; border: 1px solid var(--line); background: var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%237C8C86" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>') no-repeat 12px center; border-radius: 999px; font-family: inherit; font-size: 14px; color: var(--ink); }
   .search-input:focus{ outline: 2px solid var(--teal); outline-offset: 1px; }
-  .chip-filter{ border: 1px solid var(--line); background: var(--panel); color: var(--ink-soft); padding: 7px 12px; border-radius: 999px; font-size: 13px; cursor: pointer; }
-  .chip-filter[aria-pressed="true"]{ background: var(--ink); color: #fff; border-color: var(--ink); }
+  .filter-group{ display: flex; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+  .chip-filter{ border: none; background: none; color: var(--ink-soft); padding: 7px 13px; border-radius: 999px; font-size: 13px; cursor: pointer; }
+  .chip-filter[aria-pressed="true"]{ background: var(--teal); color: #fff; }
 
   .axe{ margin-bottom: 52px; scroll-margin-top: 70px; }
-  .axe-head{ display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .axe-head{ display: flex; align-items: center; gap: 14px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
   .axe-num{ font-family: "IBM Plex Mono", monospace; font-size: 14px; color: var(--teal); flex-shrink: 0; }
   .axe-head h2{ font-size: 24px; line-height: 1.2; flex: 1; }
 
   .add-project-btn{ border: 1px dashed var(--line); background: none; color: var(--muted); padding: 8px 14px; border-radius: 999px; font-size: 13px; cursor: pointer; margin-top: 4px; }
   .add-project-btn:hover{ border-color: var(--teal); color: var(--teal); }
 
-  .project{ border-bottom: 1px solid var(--line); }
-  .project summary{ list-style: none; cursor: pointer; padding: 16px 0; display: grid; grid-template-columns: 1fr auto auto auto auto 18px; gap: 16px; align-items: center; }
+  .project{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: border-left-color .15s, box-shadow .15s;
+  }
+  .project:hover{ box-shadow: 0 1px 4px rgba(22,36,31,0.06); }
+  .project[data-status="EN COURS"]{ border-left-color: var(--teal); }
+  .project[data-status="À LANCER"]{ border-left-color: var(--ochre); }
+  .project[data-status="À ÉTUDIER"]{ border-left-color: var(--grey-chip); }
+  .project summary{ list-style: none; cursor: pointer; padding: 16px 18px; display: grid; grid-template-columns: 1fr auto auto auto auto 18px; gap: 16px; align-items: center; }
   .project summary::-webkit-details-marker{ display: none; }
   @media (max-width: 700px){ .project summary{ grid-template-columns: 1fr; gap: 8px; } }
 
   .project-title{ font-weight: 600; font-size: 15px; }
   .project-meta{ color: var(--muted); font-size: 13px; margin-top: 3px; font-weight: 400; }
-  .pilote-tag{ font-size: 13px; color: var(--ink-soft); white-space: nowrap; }
+  .pilote-tag{ font-size: 13px; color: var(--ink-soft); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
   .pilote-tag b{ font-weight: 600; color: var(--ink); }
+
+  .avatar-row{ display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .avatar{
+    width: 22px; height: 22px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: #fff; flex-shrink: 0;
+    font-family: "IBM Plex Sans", sans-serif;
+  }
+  .avatar-list{ display: flex; flex-direction: column; gap: 8px; }
+  .avatar-list-row{ display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-soft); }
+
+  .axe-ring{ flex-shrink: 0; }
+  .axe-ring-label{ font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); text-align: center; margin-top: 3px; }
 
   .progress-wrap{ width: 110px; display: flex; flex-direction: column; gap: 4px; }
   .progress-num{ font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-soft); }
@@ -132,7 +169,7 @@
   .chevron{ color: var(--muted); transition: transform .15s; justify-self: end; }
   .project[open] .chevron{ transform: rotate(180deg); }
 
-  .project-body{ padding: 0 0 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .project-body{ padding: 0 18px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
   @media (max-width: 700px){ .project-body{ grid-template-columns: 1fr; } }
   .project-body h4{ font-size: 12px; color: var(--muted); margin: 0 0 10px; font-weight: 500; }
 
@@ -178,7 +215,7 @@
   /* ---------- people view ---------- */
 
   #agents .agent-card{ border-bottom: 1px solid var(--line); padding: 18px 0; }
-  #agents .agent-name{ font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+  #agents .agent-name{ font-size: 17px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
   #agents .agent-role{ font-size: 12px; color: var(--muted); margin-left: 8px; font-weight: 400; }
   #agents ul{ margin: 0; padding-left: 18px; }
   #agents li{ font-size: 14px; margin-bottom: 4px; }
@@ -211,7 +248,7 @@
 
     <div class="nav-group-label">Autres vues</div>
     <ul class="nav-list">
-      <li><a href="#agents"><span class="nav-num">·</span> Vue par agent</a></li>
+      <li><a href="#" id="sidebarAgentsLink"><span class="nav-num">·</span> Vue par agent</a></li>
     </ul>
   </nav>
 
@@ -224,20 +261,28 @@
       <div class="stat-row" id="statRow"></div>
     </section>
 
-    <div class="controls">
-      <input type="search" class="search-input" id="searchInput" placeholder="Rechercher un projet, un agent, une action…" aria-label="Rechercher">
-      <button class="chip-filter" data-status="EN COURS">En cours</button>
-      <button class="chip-filter" data-status="À LANCER">À lancer</button>
-      <button class="chip-filter" data-status="À ÉTUDIER">À étudier</button>
-      <button class="chip-filter" data-status="">Non défini</button>
+    <div class="tab-bar" role="tablist">
+      <button type="button" class="tab-btn" data-tab="axes" role="tab" aria-selected="true">Par axe</button>
+      <button type="button" class="tab-btn" data-tab="agents" role="tab" aria-selected="false">Vue par agent</button>
     </div>
 
-    <p class="load-note" id="loadNote">Chargement des données…</p>
-    <div id="axesContainer" hidden></div>
-    <p class="no-results" id="noResults" hidden>Aucun projet ne correspond à cette recherche.</p>
+    <div id="panelAxes">
+      <div class="controls">
+        <input type="search" class="search-input" id="searchInput" placeholder="Rechercher un projet, un agent, une action…" aria-label="Rechercher">
+        <div class="filter-group">
+          <button class="chip-filter" data-status="EN COURS">En cours</button>
+          <button class="chip-filter" data-status="À LANCER">À lancer</button>
+          <button class="chip-filter" data-status="À ÉTUDIER">À étudier</button>
+          <button class="chip-filter" data-status="">Non défini</button>
+        </div>
+      </div>
 
-    <section class="axe" id="agents">
-      <div class="axe-head"><h2>Vue par agent</h2></div>
+      <p class="load-note" id="loadNote">Chargement des données…</p>
+      <div id="axesContainer" hidden></div>
+      <p class="no-results" id="noResults" hidden>Aucun projet ne correspond à cette recherche.</p>
+    </div>
+
+    <section class="axe" id="agents" hidden>
       <div id="agentsContainer"></div>
     </section>
 
@@ -287,6 +332,44 @@ function pct(av){
 
 function esc(s){
   return (s ?? '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+const AVATAR_PALETTE = ['#0E6E62','#C1652F','#4A6FA5','#8A5CB0','#B23A2E','#5C7A3D','#A0783C'];
+function avatarColor(name){
+  let h = 0;
+  for(let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) % AVATAR_PALETTE.length;
+  return AVATAR_PALETTE[Math.abs(h)];
+}
+function initials(name){
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return '?';
+  if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+}
+function avatarHTML(name, size){
+  size = size || 22;
+  return `<span class="avatar" title="${esc(name)}" style="background:${avatarColor(name)};width:${size}px;height:${size}px;font-size:${Math.round(size*0.45)}px">${esc(initials(name))}</span>`;
+}
+function avatarRowHTML(names){
+  if(!names || !names.length) return '';
+  return `<span class="avatar-row">${names.map(n=>avatarHTML(n)).join('')}</span>`;
+}
+
+function axeRingSVG(axe){
+  const counts = {"EN COURS":0,"À LANCER":0,"À ÉTUDIER":0,"":0};
+  axe.projects.forEach(p => { counts[p.statut ?? ''] = (counts[p.statut ?? '']||0) + 1; });
+  const total = axe.projects.length || 1;
+  const colors = {"EN COURS":"#0E6E62","À LANCER":"#C1652F","À ÉTUDIER":"#6B7670","":"#DCE2DC"};
+  const r = 15, circ = 2*Math.PI*r;
+  let offset = 0;
+  const segs = Object.entries(counts).filter(([,n])=>n>0).map(([status,n])=>{
+    const frac = n/total;
+    const dash = frac*circ;
+    const seg = `<circle cx="18" cy="18" r="${r}" fill="none" stroke="${colors[status]}" stroke-width="4" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 18 18)"/>`;
+    offset += dash;
+    return seg;
+  }).join('');
+  return `<svg class="axe-ring" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">${segs}</svg>`;
 }
 
 /* ---------------- data loading ---------------- */
@@ -376,7 +459,7 @@ function projectViewHTML(p){
   const rightCol = `
     <div>
       <h4>Contributeurs</h4>
-      <p class="contrib-line">${(p.contributeurs && p.contributeurs.length) ? p.contributeurs.map(esc).join(', ') : 'Aucun contributeur listé.'}</p>
+      ${(p.contributeurs && p.contributeurs.length) ? `<div class="avatar-list">${p.contributeurs.map(n=>`<div class="avatar-list-row">${avatarHTML(n,20)}${esc(n)}</div>`).join('')}</div>` : `<p class="contrib-line">Aucun contributeur listé.</p>`}
       ${p.links && p.links.length ? `<h4 style="margin-top:16px">Liens utiles</h4>${linksHTML}` : ''}
       ${p.note ? `<h4 style="margin-top:16px">Note</h4><p class="contrib-line">${esc(p.note)}</p>` : ''}
       ${p.has_cat_registry ? `<h4 style="margin-top:16px">Registre des fiches CAT</h4>${catRegistryHTML()}` : ''}
@@ -390,7 +473,7 @@ function projectViewHTML(p){
         <div class="project-title">${esc(p.titre)}</div>
         <div class="project-meta">Échéance : ${esc(p.echeance) || 'non renseignée'}${p.updated_by ? ` · modifié par ${esc(p.updated_by)}` : ''}</div>
       </div>
-      <div class="pilote-tag">Pilote : <b>${(p.pilotes||[]).map(esc).join(', ') || '—'}</b></div>
+      <div class="pilote-tag">${avatarRowHTML(p.pilotes)}<b>${(p.pilotes||[]).map(esc).join(', ') || '—'}</b></div>
       ${progressHTML}
       <span class="status-chip ${statutClass}">${esc(statutLabel)}</span>
       <button type="button" class="edit-btn" data-edit="${p.id}">✎ Modifier</button>
@@ -473,6 +556,7 @@ function renderAxes(){
       <div class="axe-head">
         <span class="axe-num">Axe ${a.numero}</span>
         <h2>${esc(a.titre)}</h2>
+        ${axeRingSVG(a)}
       </div>
       ${a.projects.map(p => projectRowHTML(a, p)).join('')}
       <button type="button" class="add-project-btn" data-add-project="${a.id}">+ Ajouter un chantier à cet axe</button>
@@ -659,7 +743,7 @@ function renderAgents(){
   const names = Object.keys(map).sort((a,b)=>a.localeCompare(b,'fr'));
   document.getElementById('agentsContainer').innerHTML = names.map(name => `
     <div class="agent-card">
-      <div class="agent-name">${esc(name)} <span class="agent-role">${map[name].pilote.length} pilotage(s) · ${map[name].contrib.length} contribution(s)</span></div>
+      <div class="agent-name">${avatarHTML(name,28)} ${esc(name)} <span class="agent-role">${map[name].pilote.length} pilotage(s) · ${map[name].contrib.length} contribution(s)</span></div>
       ${map[name].pilote.length ? `<p class="contrib-line" style="margin-bottom:6px">Pilote sur :</p><ul>${map[name].pilote.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>` : ''}
       ${map[name].contrib.length ? `<p class="contrib-line" style="margin:10px 0 6px">Contributeur sur :</p><ul>${map[name].contrib.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>` : ''}
     </div>
@@ -696,6 +780,24 @@ document.querySelectorAll('.chip-filter').forEach(btn=>{
     else { activeStatuses.add(s); btn.setAttribute('aria-pressed','true'); }
     applyFilters();
   });
+});
+
+/* ---------------- tabs ---------------- */
+
+function showTab(tab){
+  document.getElementById('panelAxes').hidden = tab !== 'axes';
+  document.getElementById('agents').hidden = tab !== 'agents';
+  document.querySelectorAll('.tab-btn').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+}
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click', ()=>showTab(b.dataset.tab));
+});
+document.getElementById('sidebarAgentsLink').addEventListener('click', (e)=>{
+  e.preventDefault();
+  showTab('agents');
+});
+document.getElementById('axeNav').addEventListener('click', (e)=>{
+  if(e.target.closest('a')) showTab('axes');
 });
 
 /* ---------------- init ---------------- */
