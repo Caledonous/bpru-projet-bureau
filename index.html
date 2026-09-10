@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BPRU — Tableau de bord du projet de bureau — DDDT</title>
-<meta name="description" content="Suivi du projet de bureau du BPRU (DDDT, Province Sud) — 7 axes stratégiques, 28 chantiers.">
+<meta name="description" content="Suivi collaboratif du projet de bureau du BPRU (DDDT, Province Sud) — 7 axes stratégiques, chantiers modifiables en direct.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,380..600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
@@ -23,6 +23,7 @@
     --ochre-soft: #F7E9DE;
     --grey-chip: #6B7670;
     --grey-chip-soft: #E7E9E6;
+    --danger: #B23A2E;
     --radius: 3px;
   }
 
@@ -46,401 +47,147 @@
   }
 
   a{ color: inherit; }
+  button{ font-family: inherit; }
 
-  .skip-link{
-    position:absolute; left:-999px; top:0;
-  }
-  .skip-link:focus{
-    left: 12px; top: 12px; background: var(--ink); color: #fff;
-    padding: 8px 12px; z-index: 100; border-radius: var(--radius);
-  }
+  .skip-link{ position:absolute; left:-999px; top:0; }
+  .skip-link:focus{ left: 12px; top: 12px; background: var(--ink); color: #fff; padding: 8px 12px; z-index: 100; border-radius: var(--radius); }
 
   /* ---------- layout shell ---------- */
 
-  .shell{
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    max-width: 1180px;
-    margin: 0 auto;
-  }
+  .shell{ display: grid; grid-template-columns: 240px 1fr; max-width: 1180px; margin: 0 auto; }
+  @media (max-width: 860px){ .shell{ grid-template-columns: 1fr; } }
 
-  @media (max-width: 860px){
-    .shell{ grid-template-columns: 1fr; }
-  }
+  .sidebar{ position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 28px 20px 28px 28px; border-right: 1px solid var(--line); }
+  @media (max-width: 860px){ .sidebar{ position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); padding: 20px 20px 12px; } }
 
-  /* ---------- sidebar ---------- */
+  .brand{ font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); letter-spacing: 0.02em; margin-bottom: 4px; }
+  .brand-title{ font-family: "Fraunces", serif; font-size: 21px; line-height: 1.25; margin-bottom: 18px; max-width: 20ch; }
 
-  .sidebar{
-    position: sticky;
-    top: 0;
-    align-self: start;
-    height: 100vh;
-    overflow-y: auto;
-    padding: 28px 20px 28px 28px;
-    border-right: 1px solid var(--line);
-  }
+  .who-box{ margin-bottom: 20px; }
+  .who-box label{ font-size: 12px; color: var(--muted); display:block; margin-bottom: 5px; }
+  .who-box input{ width:100%; padding: 7px 9px; border:1px solid var(--line); border-radius: var(--radius); font-family:inherit; font-size:13px; background:var(--panel); }
 
-  @media (max-width: 860px){
-    .sidebar{ position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); padding: 20px 20px 12px; }
-  }
-
-  .brand{
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 0.02em;
-    margin-bottom: 4px;
-  }
-
-  .brand-title{
-    font-family: "Fraunces", serif;
-    font-size: 21px;
-    line-height: 1.25;
-    margin-bottom: 22px;
-    max-width: 20ch;
-  }
-
-  .nav-group-label{
-    font-size: 12px;
-    color: var(--muted);
-    margin: 18px 0 8px;
-  }
-
-  .nav-list{
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .nav-list li{ margin: 0; }
-
-  .nav-list a{
-    display: flex;
-    gap: 10px;
-    align-items: baseline;
-    text-decoration: none;
-    padding: 6px 0;
-    color: var(--ink-soft);
-    font-size: 14px;
-    border-left: 2px solid transparent;
-    padding-left: 10px;
-    margin-left: -12px;
-    transition: color .15s, border-color .15s;
-  }
-
-  .nav-list a:hover, .nav-list a.active{
-    color: var(--teal);
-    border-left-color: var(--teal);
-  }
-
-  .nav-num{
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 12px;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
+  .nav-group-label{ font-size: 12px; color: var(--muted); margin: 18px 0 8px; }
+  .nav-list{ list-style: none; padding: 0; margin: 0; }
+  .nav-list a{ display: flex; gap: 10px; align-items: baseline; text-decoration: none; padding: 6px 0; color: var(--ink-soft); font-size: 14px; border-left: 2px solid transparent; padding-left: 10px; margin-left: -12px; transition: color .15s, border-color .15s; }
+  .nav-list a:hover, .nav-list a.active{ color: var(--teal); border-left-color: var(--teal); }
+  .nav-num{ font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); flex-shrink: 0; }
 
   /* ---------- main ---------- */
 
   main{ padding: 28px 32px 80px; min-width: 0; }
-
   @media (max-width: 860px){ main{ padding: 20px 18px 60px; } }
 
-  /* ---------- hero ---------- */
+  .hero{ padding: 8px 0 36px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+  .hero-eyebrow{ color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+  .hero h1{ font-size: clamp(28px, 4vw, 44px); line-height: 1.08; max-width: 20ch; }
+  .hero-lede{ margin-top: 14px; max-width: 60ch; color: var(--ink-soft); font-size: 16px; }
 
-  .hero{
-    padding: 8px 0 36px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 36px;
-  }
-
-  .hero-eyebrow{
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-
-  .hero h1{
-    font-size: clamp(28px, 4vw, 44px);
-    line-height: 1.08;
-    max-width: 18ch;
-  }
-
-  .hero-lede{
-    margin-top: 14px;
-    max-width: 56ch;
-    color: var(--ink-soft);
-    font-size: 16px;
-  }
-
-  .stat-row{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
-    margin-top: 30px;
-    border-top: 1px solid var(--line);
-  }
-
-  .stat{
-    flex: 1 1 120px;
-    padding: 16px 20px 0 0;
-  }
-
-  .stat-num{
-    font-family: "Fraunces", serif;
-    font-size: 32px;
-    line-height: 1;
-  }
-
-  .stat-label{
-    color: var(--muted);
-    font-size: 13px;
-    margin-top: 6px;
-  }
-
+  .stat-row{ display: flex; flex-wrap: wrap; gap: 0; margin-top: 30px; border-top: 1px solid var(--line); }
+  .stat{ flex: 1 1 120px; padding: 16px 20px 0 0; }
+  .stat-num{ font-family: "Fraunces", serif; font-size: 32px; line-height: 1; }
+  .stat-label{ color: var(--muted); font-size: 13px; margin-top: 6px; }
   .stat.teal .stat-num{ color: var(--teal); }
   .stat.ochre .stat-num{ color: var(--ochre); }
 
-  /* ---------- controls ---------- */
-
-  .controls{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 28px;
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    padding: 14px 0;
-    z-index: 5;
-  }
-
-  .search-input{
-    flex: 1 1 220px;
-    padding: 9px 12px;
-    border: 1px solid var(--line);
-    background: var(--panel);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 14px;
-    color: var(--ink);
-  }
-
+  .controls{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 28px; position: sticky; top: 0; background: var(--bg); padding: 14px 0; z-index: 5; }
+  .search-input{ flex: 1 1 220px; padding: 9px 12px; border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); font-family: inherit; font-size: 14px; color: var(--ink); }
   .search-input:focus{ outline: 2px solid var(--teal); outline-offset: 1px; }
+  .chip-filter{ border: 1px solid var(--line); background: var(--panel); color: var(--ink-soft); padding: 7px 12px; border-radius: 999px; font-size: 13px; cursor: pointer; }
+  .chip-filter[aria-pressed="true"]{ background: var(--ink); color: #fff; border-color: var(--ink); }
 
-  .chip-filter{
-    border: 1px solid var(--line);
-    background: var(--panel);
-    color: var(--ink-soft);
-    padding: 7px 12px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-family: inherit;
-    cursor: pointer;
-  }
+  .axe{ margin-bottom: 52px; scroll-margin-top: 70px; }
+  .axe-head{ display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .axe-num{ font-family: "IBM Plex Mono", monospace; font-size: 14px; color: var(--teal); flex-shrink: 0; }
+  .axe-head h2{ font-size: 24px; line-height: 1.2; flex: 1; }
 
-  .chip-filter[aria-pressed="true"]{
-    background: var(--ink);
-    color: #fff;
-    border-color: var(--ink);
-  }
+  .add-project-btn{ border: 1px dashed var(--line); background: none; color: var(--muted); padding: 8px 14px; border-radius: 999px; font-size: 13px; cursor: pointer; margin-top: 4px; }
+  .add-project-btn:hover{ border-color: var(--teal); color: var(--teal); }
 
-  /* ---------- axe section ---------- */
-
-  .axe{
-    margin-bottom: 52px;
-    scroll-margin-top: 70px;
-  }
-
-  .axe-head{
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    margin-bottom: 18px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .axe-num{
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 14px;
-    color: var(--teal);
-    flex-shrink: 0;
-  }
-
-  .axe-head h2{ font-size: 24px; line-height: 1.2; }
-
-  /* ---------- project row ---------- */
-
-  .project{
-    border-bottom: 1px solid var(--line);
-  }
-
-  .project summary{
-    list-style: none;
-    cursor: pointer;
-    padding: 16px 0;
-    display: grid;
-    grid-template-columns: 1fr auto auto auto 18px;
-    gap: 16px;
-    align-items: center;
-  }
-
+  .project{ border-bottom: 1px solid var(--line); }
+  .project summary{ list-style: none; cursor: pointer; padding: 16px 0; display: grid; grid-template-columns: 1fr auto auto auto auto 18px; gap: 16px; align-items: center; }
   .project summary::-webkit-details-marker{ display: none; }
+  @media (max-width: 700px){ .project summary{ grid-template-columns: 1fr; gap: 8px; } }
 
-  @media (max-width: 700px){
-    .project summary{ grid-template-columns: 1fr; gap: 8px; }
-  }
-
-  .project-title{
-    font-weight: 600;
-    font-size: 15px;
-  }
-
-  .project-meta{
-    color: var(--muted);
-    font-size: 13px;
-    margin-top: 3px;
-    font-weight: 400;
-  }
-
-  .pilote-tag{
-    font-size: 13px;
-    color: var(--ink-soft);
-    white-space: nowrap;
-  }
+  .project-title{ font-weight: 600; font-size: 15px; }
+  .project-meta{ color: var(--muted); font-size: 13px; margin-top: 3px; font-weight: 400; }
+  .pilote-tag{ font-size: 13px; color: var(--ink-soft); white-space: nowrap; }
   .pilote-tag b{ font-weight: 600; color: var(--ink); }
 
-  .progress-wrap{
-    width: 110px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .progress-num{
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 12px;
-    color: var(--ink-soft);
-  }
-  .progress-track{
-    height: 4px;
-    background: var(--line);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .progress-fill{
-    height: 100%;
-    background: var(--teal);
-  }
+  .progress-wrap{ width: 110px; display: flex; flex-direction: column; gap: 4px; }
+  .progress-num{ font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-soft); }
+  .progress-track{ height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .progress-fill{ height: 100%; background: var(--teal); }
 
-  .status-chip{
-    font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    white-space: nowrap;
-    font-weight: 500;
-  }
+  .status-chip{ font-size: 12px; padding: 4px 10px; border-radius: 999px; white-space: nowrap; font-weight: 500; }
   .status-en-cours{ background: var(--teal-soft); color: var(--teal); }
   .status-a-lancer{ background: var(--ochre-soft); color: var(--ochre); }
   .status-a-etudier{ background: var(--grey-chip-soft); color: var(--grey-chip); }
   .status-blank{ background: transparent; color: var(--muted); border: 1px dashed var(--line); }
 
-  .chevron{
-    color: var(--muted);
-    transition: transform .15s;
-    justify-self: end;
-  }
+  .edit-btn{ border: 1px solid var(--line); background: var(--panel); color: var(--ink-soft); cursor: pointer; font-size: 12.5px; padding: 6px 12px; border-radius: 999px; white-space: nowrap; font-weight: 500; }
+  .edit-btn:hover{ color: var(--teal); border-color: var(--teal); background: var(--teal-soft); }
+  .edit-btn:focus-visible{ outline: 2px solid var(--teal); outline-offset: 1px; }
+
+  .chevron{ color: var(--muted); transition: transform .15s; justify-self: end; }
   .project[open] .chevron{ transform: rotate(180deg); }
 
-  .project-body{
-    padding: 0 0 22px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 28px;
-  }
+  .project-body{ padding: 0 0 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  @media (max-width: 700px){ .project-body{ grid-template-columns: 1fr; } }
+  .project-body h4{ font-size: 12px; color: var(--muted); margin: 0 0 10px; font-weight: 500; }
 
-  @media (max-width: 700px){
-    .project-body{ grid-template-columns: 1fr; }
-  }
-
-  .project-body h4{
-    font-size: 12px;
-    color: var(--muted);
-    margin: 0 0 10px;
-    font-weight: 500;
-  }
-
-  .action-list, .link-list{
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .action-list li{
-    font-size: 14px;
-    padding-left: 16px;
-    position: relative;
-  }
-  .action-list li::before{
-    content: "–";
-    position: absolute;
-    left: 0;
-    color: var(--muted);
-  }
+  .action-list, .link-list{ list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .action-list li{ font-size: 14px; padding-left: 16px; position: relative; }
+  .action-list li::before{ content: "–"; position: absolute; left: 0; color: var(--muted); }
   .action-who{ color: var(--muted); font-size: 12.5px; }
-
   .link-list li{ font-size: 14px; color: var(--ink-soft); }
-
   .contrib-line{ font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
-
   .empty-note{ color: var(--muted); font-size: 14px; font-style: italic; }
 
-  /* ---------- CAT registry detail ---------- */
+  /* ---------- edit form ---------- */
+
+  .edit-form{ grid-column: 1 / -1; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .edit-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px){ .edit-row{ grid-template-columns: 1fr; } }
+  .edit-field label{ font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; }
+  .edit-field input, .edit-field select, .edit-field textarea{ width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-family: inherit; font-size: 14px; background: #fff; }
+  .edit-field textarea{ resize: vertical; min-height: 44px; }
+  .edit-list-row{ display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+  .edit-list-row input{ flex: 1; padding: 6px 9px; border: 1px solid var(--line); border-radius: var(--radius); font-family: inherit; font-size: 13px; }
+  .edit-list-row input.qui-input{ flex: 0 0 34%; }
+  .small-btn{ border: 1px solid var(--line); background: #fff; color: var(--ink-soft); padding: 5px 9px; border-radius: var(--radius); cursor: pointer; font-size: 12px; }
+  .small-btn:hover{ border-color: var(--teal); color: var(--teal); }
+  .remove-btn{ border: none; background: none; color: var(--muted); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 6px; }
+  .remove-btn:hover{ color: var(--danger); }
+  .edit-actions-footer{ display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .save-btn{ background: var(--teal); color: #fff; border: none; padding: 9px 18px; border-radius: var(--radius); cursor: pointer; font-size: 14px; font-weight: 500; }
+  .save-btn:hover{ background: #0a5850; }
+  .cancel-btn{ background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 9px 8px; }
+  .delete-project-btn{ background: none; border: none; color: var(--danger); cursor: pointer; font-size: 13px; }
+  .delete-project-btn:hover{ text-decoration: underline; }
+  .save-status{ font-size: 13px; color: var(--muted); }
+
+  /* ---------- CAT registry ---------- */
 
   .cat-groups{ display:flex; flex-direction:column; gap:14px; }
-  .cat-group summary{
-    cursor:pointer; font-size: 13px; color: var(--teal); font-weight:500; padding: 4px 0;
-  }
-  .cat-cols{
-    columns: 2 220px;
-    column-gap: 24px;
-    margin-top: 8px;
-  }
+  .cat-group summary{ cursor:pointer; font-size: 13px; color: var(--teal); font-weight:500; padding: 4px 0; }
+  .cat-cols{ columns: 2 220px; column-gap: 24px; margin-top: 8px; }
   @media (max-width: 700px){ .cat-cols{ columns: 1; } }
-  .cat-cols div{
-    font-size: 13px;
-    color: var(--ink-soft);
-    break-inside: avoid;
-    padding: 3px 0;
-    border-bottom: 1px dotted var(--line);
-  }
+  .cat-cols div{ font-size: 13px; color: var(--ink-soft); break-inside: avoid; padding: 3px 0; border-bottom: 1px dotted var(--line); }
 
   /* ---------- people view ---------- */
 
-  #agents .agent-card{
-    border-bottom: 1px solid var(--line);
-    padding: 18px 0;
-  }
+  #agents .agent-card{ border-bottom: 1px solid var(--line); padding: 18px 0; }
   #agents .agent-name{ font-size: 17px; font-weight: 600; margin-bottom: 8px; }
   #agents .agent-role{ font-size: 12px; color: var(--muted); margin-left: 8px; font-weight: 400; }
   #agents ul{ margin: 0; padding-left: 18px; }
   #agents li{ font-size: 14px; margin-bottom: 4px; }
 
-  /* ---------- footer ---------- */
-
-  footer{
-    border-top: 1px solid var(--line);
-    padding-top: 20px;
-    margin-top: 40px;
-    color: var(--muted);
-    font-size: 13px;
-  }
-
+  footer{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px; color: var(--muted); font-size: 13px; }
   .no-results{ color: var(--muted); font-style: italic; padding: 30px 0; }
+  .load-note{ color: var(--muted); font-style: italic; padding: 30px 0; }
+  .toast{ position: fixed; bottom: 20px; right: 20px; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: var(--radius); font-size: 13px; opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; pointer-events: none; z-index: 50; }
+  .toast.show{ opacity: 1; transform: translateY(0); }
 
 </style>
 </head>
@@ -453,6 +200,11 @@
   <nav class="sidebar" aria-label="Navigation des axes">
     <div class="brand">DDDT · BPRU</div>
     <div class="brand-title">Projet de bureau</div>
+
+    <div class="who-box">
+      <label for="authorInput">Votre nom (pour l'historique des modifications)</label>
+      <input type="text" id="authorInput" placeholder="ex. Sylvie Charmant" autocomplete="off">
+    </div>
 
     <div class="nav-group-label">Axes stratégiques</div>
     <ul class="nav-list" id="axeNav"></ul>
@@ -468,8 +220,7 @@
     <section class="hero">
       <div class="hero-eyebrow">Bureau de la performance et de la relation à l'usager — DDDT, Province Sud</div>
       <h1>Le projet de bureau du BPRU</h1>
-      <p class="hero-lede">Sept axes de travail, du pilotage de la performance à l'appui aux dossiers transversaux de la direction. Cette page reprend l'espace Confluence du bureau dans un format à consulter, filtrer et partager plus facilement.</p>
-
+      <p class="hero-lede">Sept axes de travail, du pilotage de la performance à l'appui aux dossiers transversaux de la direction. Chaque agent peut modifier directement un chantier — statut, avancement, actions — les changements sont enregistrés pour tout le monde.</p>
       <div class="stat-row" id="statRow"></div>
     </section>
 
@@ -481,470 +232,115 @@
       <button class="chip-filter" data-status="">Non défini</button>
     </div>
 
-    <div id="axesContainer"></div>
-
+    <p class="load-note" id="loadNote">Chargement des données…</p>
+    <div id="axesContainer" hidden></div>
     <p class="no-results" id="noResults" hidden>Aucun projet ne correspond à cette recherche.</p>
 
     <section class="axe" id="agents">
-      <div class="axe-head">
-        <h2>Vue par agent</h2>
-      </div>
+      <div class="axe-head"><h2>Vue par agent</h2></div>
       <div id="agentsContainer"></div>
     </section>
 
     <footer>
-      Contenu repris de l'espace Confluence <em>DDDT · BPRU — Projet de bureau</em>, dernière synchronisation le <span id="syncDate"></span>.
-      Pour mettre à jour un chantier, modifiez le tableau <code>PROJECTS</code> en bas de ce fichier puis republiez la page.
+      Contenu initialement repris de l'espace Confluence <em>DDDT · BPRU — Projet de bureau</em>. Les modifications faites ici sont enregistrées dans la base partagée et visibles par tous les agents dès qu'ils rechargent la page.
     </footer>
 
   </main>
 </div>
 
-<script>
-/* =====================================================================
-   DONNÉES DU TABLEAU DE BORD
-   Pour mettre à jour un chantier : modifiez l'objet correspondant
-   ci-dessous (statut, avancement, actions...) puis republiez le fichier
-   sur GitHub. Aucune autre partie du fichier n'a besoin d'être touchée.
-   Champs possibles pour un projet :
-     titre, echeance, avancement ("50 %", "--", ou "" si non renseigné),
-     statut ("EN COURS" | "À LANCER" | "À ÉTUDIER" | ""),
-     pilotes: [...], contributeurs: [...],
-     actions: [{ label, qui }], liens: [...], note (texte libre)
-   ===================================================================== */
+<div class="toast" id="toast"></div>
 
-const AXES = [
-  {
-    num: 1,
-    titre: "Piloter la performance et la démarche qualité de la DDDT",
-    projects: [
-      {
-        titre: "Mettre en place et suivre des indicateurs de performance sur la gestion des délais",
-        echeance: "30 nov. 2026", avancement: "", statut: "EN COURS",
-        pilotes: ["Justin Pilotaz"], contributeurs: ["Aurélie Tual"],
-        actions: [
-          { label: "Identifier les délais critiques" },
-          { label: "Construire les indicateurs de suivi des délais" },
-          { label: "Mettre en place un pilotage de suivi des indicateurs et d'alerte auprès des services" }
-        ]
-      },
-      {
-        titre: "Elaborer et diffuser en interne les indicateurs de performance DDDT",
-        echeance: "Continu", avancement: "50 %", statut: "EN COURS",
-        pilotes: ["Justin Pilotaz"], contributeurs: ["Aurélie Tual", "Manon Quach-Yamamoto", "Sylvie Charmant"],
-        actions: [
-          { label: "Recenser les indicateurs", qui: "Aurélie Tual" },
-          { label: "Construire la trame des tableaux de bord", qui: "Aurélie Tual" },
-          { label: "Diffuser les tableaux de bord trimestriels aux services", qui: "Manon Quach-Yamamoto, Sylvie Charmant" }
-        ]
-      },
-      {
-        titre: "Piloter la démarche qualité de la direction",
-        echeance: "Continu", avancement: "70 %", statut: "EN COURS",
-        pilotes: ["Aurélie Tual"], contributeurs: [],
-        actions: [
-          { label: "Définir le calendrier des revues de direction" },
-          { label: "Formaliser le processus de pilotage" },
-          { label: "Assurer le suivi des actions correctives issues des revues" }
-        ],
-        liens: ["Démarche qualité"]
-      }
-    ]
-  },
-  {
-    num: 2,
-    titre: "Sécuriser et moderniser le cadre réglementaire",
-    projects: [
-      {
-        titre: "Proposer une nouvelle procédure de modification du CODENV plus souple et réactive",
-        echeance: "16 oct. 2026", avancement: "", statut: "À LANCER",
-        pilotes: ["Jehanne De-Martin-De-Viviès"], contributeurs: ["Justin Pilotaz"]
-      },
-      {
-        titre: "Gérer les évolutions du CODENV 2025-2026",
-        echeance: "", avancement: "20 %", statut: "EN COURS",
-        pilotes: ["Jehanne De-Martin-De-Viviès"], contributeurs: [],
-        actions: [ { label: "Définition du calendrier" } ]
-      },
-      {
-        titre: "Assurer l'évolution du DISPPAP",
-        echeance: "", avancement: "", statut: "EN COURS",
-        pilotes: ["Thierry Raobelina"], contributeurs: ["Jehanne De-Martin-De-Viviès", "Justin Pilotaz"],
-        actions: [
-          { label: "Suivre la mise en œuvre des actions post-audit 2026", qui: "Justin Pilotaz" },
-          { label: "Rédiger les évolutions règlementaires", qui: "Jehanne De-Martin-De-Viviès" },
-          { label: "Mise en œuvre du PAT (questionnaire), y compris aides agricoles SCS DiF" }
-        ]
-      },
-      {
-        titre: "Assurer l'évolution du CASE Maritime",
-        echeance: "T4/2026", avancement: "", statut: "À LANCER",
-        pilotes: ["Thierry Raobelina"], contributeurs: ["Jehanne De-Martin-De-Viviès"]
-      },
-      {
-        titre: "Élaborer et mettre en œuvre un plan de formation des agents sur le CODENV",
-        echeance: "16 nov. 2026", avancement: "20 %", statut: "EN COURS",
-        pilotes: ["Jehanne De-Martin-De-Viviès"], contributeurs: [],
-        actions: [
-          { label: "Recensement des besoins auprès des services" },
-          { label: "Établir un planning de formation et un agenda" }
-        ],
-        note: "Formations déjà réalisées : chaîne pénale (février/mars 2026), timbre amende (février 2026)."
-      }
-    ]
-  },
-  {
-    num: 3,
-    titre: "Renforcer le pilotage stratégique et l'évaluation des politiques publiques",
-    projects: [
-      {
-        titre: "Participer au groupe de travail sur la recherche de financements extérieurs",
-        echeance: "", avancement: "50 %", statut: "",
-        pilotes: ["Justin Pilotaz"], contributeurs: [],
-        actions: [
-          { label: "Organisation de la réunion trimestrielle T3", qui: "fait" },
-          { label: "Organisation de la réunion trimestrielle T4", qui: "fait" },
-          { label: "Organisation de la réunion trimestrielle T1" }
-        ]
-      },
-      {
-        titre: "Mettre en place une cartographie des compétences internes DDDT",
-        echeance: "28 févr. 2027", avancement: "0 %", statut: "EN COURS",
-        pilotes: ["Justin Pilotaz", "Thierry Raobelina"], contributeurs: [],
-        actions: [
-          { label: "Définir l'objectif et le périmètre" },
-          { label: "Réaliser l'inventaire des compétences techniques" },
-          { label: "Établir un questionnaire (par domaine, compétences métier et complémentaires, score, autres compétences)" },
-          { label: "Diffuser le questionnaire" },
-          { label: "Compiler les résultats" },
-          { label: "Définir la procédure de mise à jour et d'accueil des nouveaux arrivants" },
-          { label: "Mettre l'outil à disposition et communiquer" }
-        ]
-      },
-      {
-        titre: "Élaborer et mettre en œuvre un programme d'évaluation des politiques publiques",
-        echeance: "", avancement: "", statut: "",
-        pilotes: ["Justin Pilotaz", "Thierry Raobelina"], contributeurs: [],
-        actions: [
-          { label: "Identifier et prioriser les politiques publiques à évaluer" },
-          { label: "Élaborer le programme annuel d'évaluation" },
-          { label: "Faire valider par la Direction" },
-          { label: "Rédiger les cahiers des charges administratif et technique" },
-          { label: "Consulter en interne sur le cahier des charges et faire valider par l'exécutif" },
-          { label: "Consulter et sélectionner le prestataire" },
-          { label: "Lancer l'évaluation" },
-          { label: "Restituer les résultats" }
-        ]
-      },
-      {
-        titre: "Contribuer à l'élaboration d'outils de caractérisation et d'évaluation des enjeux ENV",
-        echeance: "", avancement: "", statut: "",
-        pilotes: ["Justin Pilotaz"], contributeurs: []
-      },
-      {
-        titre: "Contribuer à l'élaboration d'outils de caractérisation et d'évaluation des enjeux AGRI",
-        echeance: "", avancement: "", statut: "",
-        pilotes: ["Thierry Raobelina"], contributeurs: []
-      }
-    ]
-  },
-  {
-    num: 4,
-    titre: "Améliorer la relation à l'usager",
-    projects: [
-      {
-        titre: "Proposer un dispositif d'accompagnement réglementaire à destination des usagers",
-        echeance: "30 oct. 2026", avancement: "", statut: "EN COURS",
-        pilotes: ["Jehanne De-Martin-De-Viviès"], contributeurs: ["Justin Pilotaz", "Manon Quach-Yamamoto", "Sylvie Charmant"],
-        actions: [
-          { label: "Mise à jour améliorative du formulaire de demande d'information" },
-          { label: "Vulgariser le dispositif d'accompagnement réglementaire" },
-          { label: "Révision des fiches CAT — voir détail ci-dessous", qui: "Sylvie Charmant, Manon Quach-Yamamoto" }
-        ],
-        catRegistry: true
-      },
-      {
-        titre: "Elaborer et mettre en œuvre une enquête de satisfaction des usagers",
-        echeance: "", avancement: "", statut: "À LANCER",
-        pilotes: ["Sylvie Charmant", "Manon Quach-Yamamoto"], contributeurs: ["Justin Pilotaz"],
-        actions: [
-          { label: "Définir la méthodologie et le calendrier de l'enquête avec l'ensemble du BPRU" },
-          { label: "Identifier les cibles : partenaires, administrés…" },
-          { label: "Déployer l'enquête" },
-          { label: "Restituer les résultats aux services de la DDDT" }
-        ]
-      },
-      {
-        titre: "Mise en place d'un FAQ",
-        echeance: "2027", avancement: "", statut: "À ÉTUDIER",
-        pilotes: ["Sylvie Charmant", "Manon Quach-Yamamoto"], contributeurs: []
-      }
-    ]
-  },
-  {
-    num: 5,
-    titre: "Structurer la communication et valoriser l'action de la DDDT",
-    projects: [
-      {
-        titre: "Concevoir et piloter un plan d'actions de communication spécifique sur la performance de la DDDT",
-        echeance: "30 nov. 2026", avancement: "", statut: "À LANCER",
-        pilotes: ["Sylvie Charmant"], contributeurs: ["Justin Pilotaz"]
-      },
-      {
-        titre: "Élaborer et mettre à jour le plan de communication annuel",
-        echeance: "15 févr. 2027", avancement: "", statut: "À LANCER",
-        pilotes: ["Manon Quach-Yamamoto", "Sylvie Charmant"], contributeurs: ["Justin Pilotaz", "Thierry Raobelina"],
-        actions: [
-          { label: "Rédiger la procédure d'élaboration du plan de communication" },
-          { label: "Recenser les besoins de chaque service" },
-          { label: "Faire le lien avec les politiques publiques", qui: "Justin Pilotaz, Thierry Raobelina" },
-          { label: "Élaborer le plan de communication annuel et le calendrier associé" },
-          { label: "Suivre le taux de réalisation du plan (toute l'année)" },
-          { label: "Mettre à jour le plan de communication (toute l'année)" }
-        ],
-        liens: ["Plan annuel de communication", "Procédure"]
-      },
-      {
-        titre: "Elaborer et mettre en œuvre un référentiel des supports techniques et pédagogiques",
-        echeance: "30 nov. 2026", avancement: "", statut: "À LANCER",
-        pilotes: ["Manon Quach-Yamamoto"], contributeurs: [],
-        actions: [
-          { label: "Recenser les différents supports existants par service" },
-          { label: "Harmoniser et structurer dans un référentiel commun" },
-          { label: "Diffuser le référentiel et le tenir à jour" }
-        ],
-        liens: ["Référentiel des supports pour animation"]
-      },
-      {
-        titre: "Mettre en place un système de gestion des supports de communication",
-        echeance: "31 déc. 2026", avancement: "20 %", statut: "EN COURS",
-        pilotes: ["Manon Quach-Yamamoto"], contributeurs: ["Aurélie Tual"],
-        actions: [
-          { label: "Trier et faire l'inventaire des supports" },
-          { label: "Ranger et organiser les supports" },
-          { label: "Mettre en place un outil de suivi" },
-          { label: "Élaborer la procédure de suivi" }
-        ],
-        liens: ["Inventaire des supports com"]
-      },
-      {
-        titre: "Mettre en place un système d'organisation efficace des évènements DDDT",
-        echeance: "30 nov. 2026", avancement: "", statut: "À LANCER",
-        pilotes: ["Manon Quach-Yamamoto"], contributeurs: ["Aurélie Tual"],
-        actions: [
-          { label: "Établir un rétroplanning par évènement" },
-          { label: "Élaborer des procédures par type d'évènement" }
-        ]
-      },
-      {
-        titre: "Diffuser une revue de presse hebdomadaire",
-        echeance: "Continu", avancement: "--", statut: "EN COURS",
-        pilotes: ["Karen Giunti"], contributeurs: [],
-        actions: [ { label: "Sélectionner, synthétiser et diffuser chaque semaine une revue de presse aux équipes DDDT" } ],
-        liens: ["Revue de presse DDDT"]
-      }
-    ]
-  },
-  {
-    num: 6,
-    titre: "Fédérer le BPRU autour d'un objectif commun",
-    projects: [
-      {
-        titre: "Tenir à jour le tableau de bord du BPRU",
-        echeance: "31 déc. 2026", avancement: "10 %", statut: "EN COURS",
-        pilotes: ["Aurélie Tual"], contributeurs: [],
-        actions: [
-          { label: "Définir les indicateurs et la procédure de mise à jour" },
-          { label: "Mettre en place le tableau de bord" },
-          { label: "Tenir un comité de pilotage trimestriel avec la direction" }
-        ],
-        liens: ["BPRU — Tableau de bord"]
-      },
-      {
-        titre: "Développer les binômes croisés entre métiers",
-        echeance: "Continu", avancement: "--", statut: "EN COURS",
-        pilotes: ["Aurélie Tual"], contributeurs: [],
-        note: "Binômes en place : Juridique↔Communication (vulgariser le dispositif d'accompagnement réglementaire, communiquer sur les modifications du code de l'environnement) · Évaluation↔Communication (restitution de l'enquête de satisfaction, plan de communication sur la performance) · Juridique↔Évaluation (croiser les avis sur les indicateurs de délais et de sécurité juridique des actes, évolution du DISPPAP et du CASE Maritime)."
-      }
-    ]
-  },
-  {
-    num: 7,
-    titre: "Appuyer la direction sur les projets transversaux et stratégiques",
-    projects: [
-      {
-        titre: "Gérer le risque requin",
-        echeance: "Continu", avancement: "60 %", statut: "EN COURS",
-        pilotes: ["Justin Pilotaz"], contributeurs: [],
-        actions: [
-          { label: "Finaliser la convention IRD ADNe" },
-          { label: "Finaliser la convention IRD ADN morsures" },
-          { label: "Standardiser l'effort de pêche" },
-          { label: "Piloter le P3R (suivi mensuel continu)" },
-          { label: "Réviser le format de suivi du P3R (3 axes stratégiques)" }
-        ]
-      },
-      {
-        titre: "Concevoir les mesures exceptionnelles Sécheresse / El Niño",
-        echeance: "", avancement: "40 %", statut: "EN COURS",
-        pilotes: ["Thierry Raobelina"], contributeurs: [],
-        actions: [
-          { label: "Avenant aide au transport — Agence rurale (foin)", qui: "fait : rapport + acte + avenant en cotraitance avec Jehanne" },
-          { label: "BAPS" },
-          { label: "Annexe 3 DISPPAP — aide à la récolte de fourrages", qui: "BAPS" },
-          { label: "DISPPAP — paiement des aides au forage" },
-          { label: "Convention ASLAHO", qui: "fait, en attente BAPS" }
-        ]
-      },
-      {
-        titre: "Piloter le développement économique de la filière cerf de chasse",
-        echeance: "En continu", avancement: "", statut: "EN COURS",
-        pilotes: ["Thierry Raobelina"], contributeurs: [],
-        actions: [
-          { label: "Atelier mobile de collecte et labo" },
-          { label: "DCE, analyse des choix, commande et engagement" },
-          { label: "Dossier transversal cerf de chasse" }
-        ]
-      },
-      {
-        titre: "Collaborer à l'appui financier et au suivi global de la SAEM Sud Forêt",
-        echeance: "En continu", avancement: "", statut: "EN COURS",
-        pilotes: ["Thierry Raobelina"], contributeurs: [],
-        actions: [
-          { label: "Subvention annuelle" },
-          { label: "Prêt" },
-          { label: "Avance en compte courant" },
-          { label: "Apport en capital" }
-        ],
-        liens: ["Fiche acteur — Sud Forêt"]
-      }
-    ]
-  }
-];
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-/* Registre des fiches CAT (rattaché au projet "Proposer un dispositif
-   d'accompagnement réglementaire…", axe 4). Pilote : Jehanne De-Martin-De-Viviès.
-   Objectif : harmoniser chaque fiche et vulgariser les contenus réglementaires. */
-const CAT_REGISTRY = {
-  pilote: "Jehanne De-Martin-De-Viviès",
-  objectif: "Harmonisation entre chaque fiche · Vulgarisation des contenus réglementaires",
-  groups: [
-    { label: "Priorité 1 (55 dispositifs)", items: [
-      "Accompagnement technique","Accompagnement technique dans le secteur des déchets",
-      "Agrément des opérateurs de collecte et de traitement des déchets",
-      "Agrément des pépinières végétales et animales – DISPPAP",
-      "Agrément pour la réalisation de travaux de recherche / forage d'eau souterraine",
-      "Agrément prestataire de travaux agricoles – DISPPAP","Aide au RUAMM",
-      "Aide aux soins des animaux de rente et de travail",
-      "Attestation de réglage des limiteurs de pression acoustique","Autorisation de boisement",
-      "Autorisation de collecte de ressources naturelles","Autorisation de défrichement",
-      "Autorisation relative aux écosystèmes d'intérêt patrimonial",
-      "Autorisation relative aux espèces exotiques envahissantes",
-      "Autorisations de pêche professionnelle et de pêche côtière spécifique (et renouvellements)",
-      "Déclaration de changement d'exploitant d'une exploitation de boisement",
-      "Déclaration de changement d'exploitant d'une ICPE","Déclaration de collecte de ressources naturelles",
-      "Déclaration de défrichement","Déclaration de mise en service d'une ICPE",
-      "Déclaration de projet de plantation","Déclaration de transfert de ressources naturelles",
-      "Déclaration d'incident ou accident relatif aux ICPE",
-      "Demande d'accès aux informations environnementales",
-      "Demande d'autorisation à pratiquer l'examen initial de cerf sauvage",
-      "Demande d'autorisation exceptionnelle relative aux nuisances sonores",
-      "Demande de subvention prévention et gestion des déchets",
-      "Demande d'informations sur le développement rural","Demande d'informations sur l'environnement",
-      "Dérogation de chasse de nuit","Dérogation relative aux aires protégées",
-      "Dérogation relative aux espèces exotiques envahissantes",
-      "Dérogation relative aux espèces protégées (endémiques, rares ou menacées)",
-      "Étude d'impact relative aux nuisances sonores","Évaluation environnementale",
-      "Exonération aux prescriptions relatives aux nuisances sonores",
-      "ICPE – Autorisation","ICPE – Autorisation simplifiée","ICPE – Déclaration",
-      "Inscription au dispositif classe verte du Parc provincial de la Rivière Bleue (PPRB)",
-      "Inscription au dispositif d'aire éducative environnementale (A2E)",
-      "Inscription au dispositif « À la cantine, pas de gaspi »",
-      "Lutte contre l'acajou amer","Notification de cessation d'activité d'une ICPE",
-      "Permis de chasser","Permis spécial de transport d'holothuries",
-      "Prorogation d'une autorisation relative aux écosystèmes d'intérêt patrimonial",
-      "Régime d'information préalable de boisement",
-      "Régime d'information préalable relatif aux aires protégées",
-      "Régime d'information préalable relatif aux défrichements",
-      "Régime d'information préalable relatif aux espèces exotiques envahissantes",
-      "Régime d'information préalable relatif aux espèces protégées",
-      "Signalement d'une colonie de chauves-souris","Signalement environnemental"
-    ]},
-    { label: "Priorité 2 (49 dispositifs)", items: [
-      "Accompagnement post-création ou reprise-transmission – DISPPAP",
-      "Aide à l'achat de plants locaux – DISPPAP",
-      "Aide à l'achat de reproducteurs locaux et d'embryons importés – DISPPAP",
-      "Aide à la contractualisation pour la transformation/l'exportation de produits de la pêche ou de l'aquaculture – CASE Maritime",
-      "Aide à la conversion – DISPPAP","Aide à la création d'exploitations agricoles – DISPPAP",
-      "Aide à la création d'entreprises – CASE Maritime","Aide à la formation – CASE Maritime",
-      "Aide à la formation – DISPPAP","Aide à la location de terres agricoles – DISPPAP",
-      "Aide à la mise en conformité ICPE – CASE Maritime","Aide à la mise en conformité ICPE – DISPPAP",
-      "Aide à la mutualisation des équipements – DISPPAP",
-      "Aide à la reprise d'une entreprise de pêche ou d'aquaculture marine – CASE Maritime",
-      "Aide à la sécurisation des élevages ovins et de plein air – DISPPAP",
-      "Aide à la tenue de la comptabilité – DISPPAP","Aide à la transformation à la ferme – DISPPAP",
-      "Aide à la valorisation de la biodiversité – DISPPAP","Aide à l'emploi – CASE Maritime",
-      "Aide à l'emploi – DISPPAP","Aide à l'encouragement à l'agriculture de proximité – DISPPAP",
-      "Aide à l'équipement des coopératives – CASE Maritime",
-      "Aide à l'expérimentation innovante à la ferme – DISPPAP",
-      "Aide à l'extension d'exploitation agricole – DISPPAP","Aide à l'innovation – CASE Maritime",
-      "Aide à l'installation d'abris maraîchers – DISPPAP","Aide à l'utilisation des déchets – DISPPAP",
-      "Aide au carburant pour les pêcheurs professionnels côtiers",
-      "Aide au développement de l'agriculture de proximité – DISPPAP",
-      "Aide au remplacement du salarié – DISPPAP","Aide aux équipements spécifiques – CASE Maritime",
-      "Aide aux études – CASE Maritime","Aide aux études – DISPPAP",
-      "Aide aux investissements spécifiques durables – DISPPAP","Aide aux prestations de travaux – DISPPAP",
-      "Aide aux travaux d'amélioration foncière et équipements agro-écologiques – DISPPAP",
-      "Aide aux travaux de forage, d'essais par pompage et d'analyses d'eau associées – DISPPAP",
-      "Aide aux travaux de recherche d'eau douce souterraine – DISPPAP","Aide exceptionnelle – CASE Maritime",
-      "Aides à la délocalisation d'activités – CASE Maritime","Aides spécifiques – DISPPAP",
-      "Bonification des taux d'intérêt des crédits d'équipement – DISPPAP",
-      "Bonification des taux d'intérêt des crédits de trésorerie – DISPPAP",
-      "Cahier de pêche — modèle et transmission du document","Capture et élevage de cerfs",
-      "Gratification de stage longue durée – DISPPAP","Prime à la mise à bail de terres agricoles – DISPPAP",
-      "Subvention d'équilibre aux projets innovants – DISPPAP",
-      "Subvention d'équilibre aux projets innovants – CASE Maritime"
-    ]},
-    { label: "Hors périmètre (4)", items: [
-      "Formation dans le secteur rural","Parc provincial de la Rivière Bleue — abonnement",
-      "Parc provincial des Grandes Fougères — abonnement",
-      "Parc provincial zoologique et forestier Michel-Corbasson — abonnement"
-    ]}
-  ]
-};
+const SUPABASE_URL = 'https://okqvyfiplxguliyrsxjd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_UJhksKmqtgCfyYT2Md1x0A_pCv3zGnw';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* =====================================================================
-   RENDU — pas besoin de modifier ce qui suit pour mettre à jour le contenu
-   ===================================================================== */
+const STATUS_CLASS = { "EN COURS": "status-en-cours", "À LANCER": "status-a-lancer", "À ÉTUDIER": "status-a-etudier", "": "status-blank" };
+const STATUS_LABEL = { "EN COURS": "En cours", "À LANCER": "À lancer", "À ÉTUDIER": "À étudier", "": "Non défini" };
+const STATUS_OPTIONS = ["", "EN COURS", "À LANCER", "À ÉTUDIER"];
 
-const STATUS_CLASS = {
-  "EN COURS": "status-en-cours",
-  "À LANCER": "status-a-lancer",
-  "À ÉTUDIER": "status-a-etudier",
-  "": "status-blank"
-};
-const STATUS_LABEL = {
-  "EN COURS": "En cours", "À LANCER": "À lancer", "À ÉTUDIER": "À étudier", "": "Non défini"
-};
+let AXES = [];       // [{id, numero, titre, projects:[...]}]
+let CAT_GROUPS = []; // [{groupe, items:[libelle,...]}]
+
+function getAuthor(){
+  const v = document.getElementById('authorInput').value.trim();
+  if(v) localStorage.setItem('bpru_auteur', v);
+  return v || 'anonyme';
+}
+document.getElementById('authorInput').value = localStorage.getItem('bpru_auteur') || '';
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(()=>t.classList.remove('show'), 2600);
+}
 
 function pct(av){
   if(!av) return null;
-  const m = av.match(/(\d+)/);
+  const m = String(av).match(/(\d+)/);
   return m ? parseInt(m[1],10) : null;
 }
 
+function esc(s){
+  return (s ?? '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ---------------- data loading ---------------- */
+
+async function loadAll(){
+  const [{data: axesData, error: e1}, {data: projectsData, error: e2}, {data: actionsData, error: e3}, {data: linksData, error: e4}, {data: catData, error: e5}] =
+    await Promise.all([
+      supabase.from('axes').select('*').order('numero'),
+      supabase.from('projects').select('*').order('position'),
+      supabase.from('actions').select('*').order('position'),
+      supabase.from('links').select('*').order('position'),
+      supabase.from('cat_items').select('*').order('groupe').order('position')
+    ]);
+
+  if(e1||e2||e3||e4||e5){
+    document.getElementById('loadNote').textContent = "Impossible de charger les données depuis Supabase. Réessayez dans un instant.";
+    console.error(e1||e2||e3||e4||e5);
+    return;
+  }
+
+  AXES = axesData.map(a => ({
+    ...a,
+    projects: projectsData.filter(p => p.axe_id === a.id).map(p => ({
+      ...p,
+      actions: actionsData.filter(x => x.project_id === p.id),
+      links: linksData.filter(x => x.project_id === p.id)
+    }))
+  }));
+
+  const groups = {};
+  catData.forEach(c => { (groups[c.groupe] = groups[c.groupe] || []).push(c.libelle); });
+  CAT_GROUPS = Object.entries(groups).map(([groupe, items]) => ({ groupe, items }));
+
+  document.getElementById('loadNote').hidden = true;
+  document.getElementById('axesContainer').hidden = false;
+
+  renderNav();
+  renderStats();
+  renderAxes();
+  renderAgents();
+}
+
+/* ---------------- read-only render ---------------- */
+
 function renderNav(){
-  const nav = document.getElementById('axeNav');
-  nav.innerHTML = AXES.map(a =>
-    `<li><a href="#axe${a.num}"><span class="nav-num">${a.num}</span> ${a.titre}</a></li>`
+  document.getElementById('axeNav').innerHTML = AXES.map(a =>
+    `<li><a href="#axe${a.numero}"><span class="nav-num">${a.numero}</span> ${esc(a.titre)}</a></li>`
   ).join('');
 }
 
 function renderStats(){
   let total=0, counts={"EN COURS":0,"À LANCER":0,"À ÉTUDIER":0,"":0};
-  AXES.forEach(a=>a.projects.forEach(p=>{ total++; counts[p.statut] = (counts[p.statut]||0)+1; }));
-  const row = document.getElementById('statRow');
-  row.innerHTML = `
+  AXES.forEach(a=>a.projects.forEach(p=>{ total++; counts[p.statut ?? ''] = (counts[p.statut ?? '']||0)+1; }));
+  document.getElementById('statRow').innerHTML = `
     <div class="stat"><div class="stat-num">${AXES.length}</div><div class="stat-label">Axes stratégiques</div></div>
     <div class="stat"><div class="stat-num">${total}</div><div class="stat-label">Chantiers suivis</div></div>
     <div class="stat teal"><div class="stat-num">${counts["EN COURS"]}</div><div class="stat-label">En cours</div></div>
@@ -953,108 +349,324 @@ function renderStats(){
 }
 
 function catRegistryHTML(){
-  return `
-    <div class="cat-groups">
-      <p class="contrib-line">Pilote : <b>${CAT_REGISTRY.pilote}</b> · Objectif : ${CAT_REGISTRY.objectif}</p>
-      ${CAT_REGISTRY.groups.map(g => `
-        <details class="cat-group">
-          <summary>${g.label}</summary>
-          <div class="cat-cols">${g.items.map(i=>`<div>${i}</div>`).join('')}</div>
-        </details>
-      `).join('')}
-    </div>
-  `;
+  return `<div class="cat-groups">${CAT_GROUPS.map(g => `
+    <details class="cat-group">
+      <summary>${esc(g.groupe)} (${g.items.length})</summary>
+      <div class="cat-cols">${g.items.map(i=>`<div>${esc(i)}</div>`).join('')}</div>
+    </details>`).join('')}</div>`;
 }
 
-function projectHTML(p){
+function projectViewHTML(p){
   const p100 = pct(p.avancement);
-  const statutClass = STATUS_CLASS[p.statut] ?? "status-blank";
-  const statutLabel = STATUS_LABEL[p.statut] ?? p.statut;
+  const statutClass = STATUS_CLASS[p.statut ?? ''] ?? "status-blank";
+  const statutLabel = STATUS_LABEL[p.statut ?? ''] ?? p.statut;
 
   const progressHTML = (p100 !== null) ? `
-    <div class="progress-wrap">
-      <span class="progress-num">${p.avancement.trim()}</span>
+    <div class="progress-wrap"><span class="progress-num">${esc(p.avancement)}</span>
       <div class="progress-track"><div class="progress-fill" style="width:${p100}%"></div></div>
-    </div>` : `<div class="progress-wrap"><span class="progress-num">${p.avancement || '—'}</span></div>`;
+    </div>` : `<div class="progress-wrap"><span class="progress-num">${esc(p.avancement) || '—'}</span></div>`;
 
   const actionsHTML = (p.actions && p.actions.length) ? `
-    <div>
-      <h4>Actions / jalons</h4>
-      <ul class="action-list">
-        ${p.actions.map(a => `<li>${a.label}${a.qui ? ` <span class="action-who">(${a.qui})</span>` : ''}</li>`).join('')}
-      </ul>
-    </div>` : `<div><h4>Actions / jalons</h4><p class="empty-note">Pas encore détaillées.</p></div>`;
+    <div><h4>Actions / jalons</h4><ul class="action-list">
+      ${p.actions.map(a => `<li>${esc(a.label)}${a.qui ? ` <span class="action-who">(${esc(a.qui)})</span>` : ''}</li>`).join('')}
+    </ul></div>` : `<div><h4>Actions / jalons</h4><p class="empty-note">Pas encore détaillées.</p></div>`;
 
-  const linksHTML = (p.liens && p.liens.length) ? `
-    <ul class="link-list">${p.liens.map(l=>`<li>${l}</li>`).join('')}</ul>` : '';
+  const linksHTML = (p.links && p.links.length) ? `<ul class="link-list">${p.links.map(l=>`<li>${esc(l.label)}</li>`).join('')}</ul>` : '';
 
   const rightCol = `
     <div>
       <h4>Contributeurs</h4>
-      <p class="contrib-line">${p.contributeurs && p.contributeurs.length ? p.contributeurs.join(', ') : 'Aucun contributeur listé.'}</p>
-      ${p.liens && p.liens.length ? `<h4 style="margin-top:16px">Liens utiles</h4>${linksHTML}` : ''}
-      ${p.note ? `<h4 style="margin-top:16px">Note</h4><p class="contrib-line">${p.note}</p>` : ''}
-      ${p.catRegistry ? `<h4 style="margin-top:16px">Registre des fiches CAT</h4>${catRegistryHTML()}` : ''}
+      <p class="contrib-line">${(p.contributeurs && p.contributeurs.length) ? p.contributeurs.map(esc).join(', ') : 'Aucun contributeur listé.'}</p>
+      ${p.links && p.links.length ? `<h4 style="margin-top:16px">Liens utiles</h4>${linksHTML}` : ''}
+      ${p.note ? `<h4 style="margin-top:16px">Note</h4><p class="contrib-line">${esc(p.note)}</p>` : ''}
+      ${p.has_cat_registry ? `<h4 style="margin-top:16px">Registre des fiches CAT</h4>${catRegistryHTML()}` : ''}
     </div>`;
 
-  const searchBlob = [p.titre, p.statut, p.pilotes.join(' '), (p.contributeurs||[]).join(' '), (p.actions||[]).map(a=>a.label).join(' ')].join(' ').toLowerCase();
+  const searchBlob = [p.titre, p.statut, (p.pilotes||[]).join(' '), (p.contributeurs||[]).join(' '), (p.actions||[]).map(a=>a.label).join(' ')].join(' ').toLowerCase();
 
   return `
-  <details class="project" data-status="${p.statut}" data-search="${searchBlob.replace(/"/g,'')}">
     <summary>
       <div>
-        <div class="project-title">${p.titre}</div>
-        <div class="project-meta">Échéance : ${p.echeance || 'non renseignée'}</div>
+        <div class="project-title">${esc(p.titre)}</div>
+        <div class="project-meta">Échéance : ${esc(p.echeance) || 'non renseignée'}${p.updated_by ? ` · modifié par ${esc(p.updated_by)}` : ''}</div>
       </div>
-      <div class="pilote-tag">Pilote : <b>${p.pilotes.join(', ') || '—'}</b></div>
+      <div class="pilote-tag">Pilote : <b>${(p.pilotes||[]).map(esc).join(', ') || '—'}</b></div>
       ${progressHTML}
-      <span class="status-chip ${statutClass}">${statutLabel}</span>
+      <span class="status-chip ${statutClass}">${esc(statutLabel)}</span>
+      <button type="button" class="edit-btn" data-edit="${p.id}">✎ Modifier</button>
       <span class="chevron">▾</span>
     </summary>
-    <div class="project-body">
+    <div class="project-body" data-view="${p.id}">
       ${actionsHTML}
       ${rightCol}
-    </div>
-  </details>`;
+    </div>`;
 }
+
+/* ---------------- edit form render ---------------- */
+
+function actionRowHTML(a, idx){
+  return `<div class="edit-list-row" data-action-row>
+    <input type="text" placeholder="Action / jalon" value="${esc(a.label)}" data-action-label>
+    <input type="text" class="qui-input" placeholder="Qui (optionnel)" value="${esc(a.qui||'')}" data-action-qui>
+    <button type="button" class="remove-btn" data-remove-action title="Retirer">✕</button>
+  </div>`;
+}
+function linkRowHTML(l){
+  return `<div class="edit-list-row" data-link-row>
+    <input type="text" placeholder="Nom du lien / document" value="${esc(l.label)}" data-link-label>
+    <button type="button" class="remove-btn" data-remove-link title="Retirer">✕</button>
+  </div>`;
+}
+
+function projectEditHTML(p){
+  return `
+    <div class="edit-form" data-edit-form="${p.id}">
+      <div class="edit-field">
+        <label>Titre du chantier</label>
+        <input type="text" data-f="titre" value="${esc(p.titre)}">
+      </div>
+      <div class="edit-row">
+        <div class="edit-field"><label>Échéance</label><input type="text" data-f="echeance" value="${esc(p.echeance)}" placeholder="ex. 30 nov. 2026, Continu…"></div>
+        <div class="edit-field"><label>Avancement</label><input type="text" data-f="avancement" value="${esc(p.avancement)}" placeholder="ex. 40 %, --"></div>
+      </div>
+      <div class="edit-row">
+        <div class="edit-field">
+          <label>Statut</label>
+          <select data-f="statut">
+            ${STATUS_OPTIONS.map(s=>`<option value="${s}" ${s===(p.statut||'')?'selected':''}>${STATUS_LABEL[s]}</option>`).join('')}
+          </select>
+        </div>
+        <div class="edit-field"><label>Pilote(s) — séparés par une virgule</label><input type="text" data-f="pilotes" value="${esc((p.pilotes||[]).join(', '))}"></div>
+      </div>
+      <div class="edit-field"><label>Contributeurs — séparés par une virgule</label><input type="text" data-f="contributeurs" value="${esc((p.contributeurs||[]).join(', '))}"></div>
+      <div class="edit-field"><label>Note libre</label><textarea data-f="note">${esc(p.note||'')}</textarea></div>
+
+      <div class="edit-field">
+        <label>Actions / jalons</label>
+        <div data-action-list>${(p.actions||[]).map(actionRowHTML).join('')}</div>
+        <button type="button" class="small-btn" data-add-action>+ Ajouter une action</button>
+      </div>
+
+      <div class="edit-field">
+        <label>Liens utiles</label>
+        <div data-link-list>${(p.links||[]).map(linkRowHTML).join('')}</div>
+        <button type="button" class="small-btn" data-add-link>+ Ajouter un lien</button>
+      </div>
+
+      <div class="edit-actions-footer">
+        <div>
+          <button type="button" class="save-btn" data-save="${p.id}">Enregistrer</button>
+          <button type="button" class="cancel-btn" data-cancel="${p.id}">Annuler</button>
+        </div>
+        <button type="button" class="delete-project-btn" data-delete="${p.id}">Supprimer ce chantier</button>
+      </div>
+      <span class="save-status" data-save-status></span>
+    </div>`;
+}
+
+/* ---------------- axes render + wiring ---------------- */
 
 function renderAxes(){
   const container = document.getElementById('axesContainer');
   container.innerHTML = AXES.map(a => `
-    <section class="axe" id="axe${a.num}">
+    <section class="axe" id="axe${a.numero}">
       <div class="axe-head">
-        <span class="axe-num">Axe ${a.num}</span>
-        <h2>${a.titre}</h2>
+        <span class="axe-num">Axe ${a.numero}</span>
+        <h2>${esc(a.titre)}</h2>
       </div>
-      ${a.projects.map(projectHTML).join('')}
+      ${a.projects.map(p => projectRowHTML(a, p)).join('')}
+      <button type="button" class="add-project-btn" data-add-project="${a.id}">+ Ajouter un chantier à cet axe</button>
     </section>
   `).join('');
+
+  wireEvents(container);
 }
+
+function projectRowHTML(axe, p){
+  const searchBlob = [p.titre, p.statut, (p.pilotes||[]).join(' '), (p.contributeurs||[]).join(' '), (p.actions||[]).map(a=>a.label).join(' ')].join(' ').toLowerCase();
+  return `<details class="project" data-project="${p.id}" data-status="${p.statut||''}" data-search="${searchBlob.replace(/"/g,'')}">
+    ${projectViewHTML(p)}
+  </details>`;
+}
+
+function findProject(id){
+  for(const a of AXES){ const p = a.projects.find(x=>x.id===id); if(p) return {axe:a, project:p}; }
+  return null;
+}
+
+function wireEvents(container){
+  container.querySelectorAll('[data-edit]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const id = btn.dataset.edit;
+      const found = findProject(id);
+      if(!found) return;
+      const body = container.querySelector(`.project-body[data-view="${id}"]`);
+      body.outerHTML = projectEditHTML(found.project);
+      wireEditForm(container, id);
+    });
+  });
+
+  container.querySelectorAll('[data-add-project]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const axeId = btn.dataset.addProject;
+      const axe = AXES.find(a=>a.id===axeId);
+      const position = (axe.projects.length ? Math.max(...axe.projects.map(p=>p.position)) : 0) + 1;
+      const { data, error } = await supabase.from('projects').insert({
+        axe_id: axeId, position, titre: 'Nouveau chantier', echeance:'', avancement:'', statut:'',
+        pilotes: [], contributeurs: [], updated_by: getAuthor()
+      }).select().single();
+      if(error){ toast("Erreur lors de la création."); console.error(error); return; }
+      await supabase.from('activity_log').insert({ table_name:'projects', row_id:data.id, champ:'création', ancienne_valeur:'', nouvelle_valeur:data.titre, auteur:getAuthor() });
+      data.actions = []; data.links = [];
+      axe.projects.push(data);
+      renderAxes();
+      renderAgents();
+      renderStats();
+      toast("Chantier ajouté — vous pouvez le compléter.");
+      const el = document.querySelector(`.project[data-project="${data.id}"]`);
+      if(el){ el.open = true; el.querySelector('[data-edit]').click(); el.scrollIntoView({behavior:'smooth', block:'center'}); }
+    });
+  });
+}
+
+function wireEditForm(container, id){
+  const form = container.querySelector(`[data-edit-form="${id}"]`);
+  if(!form) return;
+
+  form.querySelector('[data-add-action]').addEventListener('click', ()=>{
+    form.querySelector('[data-action-list]').insertAdjacentHTML('beforeend', actionRowHTML({label:'',qui:''}));
+  });
+  form.querySelector('[data-add-link]').addEventListener('click', ()=>{
+    form.querySelector('[data-link-list]').insertAdjacentHTML('beforeend', linkRowHTML({label:''}));
+  });
+  form.addEventListener('click', (e)=>{
+    if(e.target.matches('[data-remove-action]')) e.target.closest('[data-action-row]').remove();
+    if(e.target.matches('[data-remove-link]')) e.target.closest('[data-link-row]').remove();
+  });
+
+  form.querySelector('[data-cancel]').addEventListener('click', ()=>{
+    const found = findProject(id);
+    form.outerHTML = `<div class="project-body" data-view="${id}">${projectViewHTML(found.project).split('</summary>')[1]}</div>`;
+  });
+
+  form.querySelector('[data-delete]').addEventListener('click', async ()=>{
+    if(!confirm("Supprimer définitivement ce chantier ? Cette action est irréversible.")) return;
+    const found = findProject(id);
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if(error){ toast("Erreur lors de la suppression."); console.error(error); return; }
+    await supabase.from('activity_log').insert({ table_name:'projects', row_id:id, champ:'suppression', ancienne_valeur:found.project.titre, nouvelle_valeur:'', auteur:getAuthor() });
+    found.axe.projects = found.axe.projects.filter(p=>p.id!==id);
+    renderAxes(); renderAgents(); renderStats(); applyFilters();
+    toast("Chantier supprimé.");
+  });
+
+  form.querySelector('[data-save]').addEventListener('click', async ()=>{
+    const found = findProject(id);
+    const original = found.project;
+    const status = form.querySelector('[data-save-status]');
+    status.textContent = 'Enregistrement…';
+
+    const newVals = {
+      titre: form.querySelector('[data-f="titre"]').value.trim(),
+      echeance: form.querySelector('[data-f="echeance"]').value.trim(),
+      avancement: form.querySelector('[data-f="avancement"]').value.trim(),
+      statut: form.querySelector('[data-f="statut"]').value,
+      pilotes: form.querySelector('[data-f="pilotes"]').value.split(',').map(s=>s.trim()).filter(Boolean),
+      contributeurs: form.querySelector('[data-f="contributeurs"]').value.split(',').map(s=>s.trim()).filter(Boolean),
+      note: form.querySelector('[data-f="note"]').value.trim()
+    };
+    const author = getAuthor();
+
+    const { error: upErr } = await supabase.from('projects').update({
+      ...newVals, updated_at: new Date().toISOString(), updated_by: author
+    }).eq('id', id);
+    if(upErr){ status.textContent = "Erreur lors de l'enregistrement."; console.error(upErr); return; }
+
+    const logRows = [];
+    const compareFields = { titre:'titre', echeance:'échéance', avancement:'avancement', statut:'statut', note:'note' };
+    for(const [key,label] of Object.entries(compareFields)){
+      if((original[key]||'') !== (newVals[key]||'')){
+        logRows.push({ table_name:'projects', row_id:id, champ:label, ancienne_valeur:String(original[key]||''), nouvelle_valeur:String(newVals[key]||''), auteur:author });
+      }
+    }
+    if((original.pilotes||[]).join(',') !== newVals.pilotes.join(',')){
+      logRows.push({ table_name:'projects', row_id:id, champ:'pilotes', ancienne_valeur:(original.pilotes||[]).join(', '), nouvelle_valeur:newVals.pilotes.join(', '), auteur:author });
+    }
+    if((original.contributeurs||[]).join(',') !== newVals.contributeurs.join(',')){
+      logRows.push({ table_name:'projects', row_id:id, champ:'contributeurs', ancienne_valeur:(original.contributeurs||[]).join(', '), nouvelle_valeur:newVals.contributeurs.join(', '), auteur:author });
+    }
+
+    // actions: replace wholesale
+    const newActions = [...form.querySelectorAll('[data-action-row]')].map((row,i)=>({
+      label: row.querySelector('[data-action-label]').value.trim(),
+      qui: row.querySelector('[data-action-qui]').value.trim(),
+      position: i+1
+    })).filter(a=>a.label);
+
+    const oldActionsBlob = (original.actions||[]).map(a=>a.label+'|'+(a.qui||'')).join(';');
+    const newActionsBlob = newActions.map(a=>a.label+'|'+a.qui).join(';');
+    if(oldActionsBlob !== newActionsBlob){
+      await supabase.from('actions').delete().eq('project_id', id);
+      if(newActions.length){
+        await supabase.from('actions').insert(newActions.map(a=>({...a, project_id:id})));
+      }
+      logRows.push({ table_name:'actions', row_id:id, champ:'liste des actions', ancienne_valeur:(original.actions||[]).map(a=>a.label).join(' · '), nouvelle_valeur:newActions.map(a=>a.label).join(' · '), auteur:author });
+    }
+
+    // links: replace wholesale
+    const newLinks = [...form.querySelectorAll('[data-link-row]')].map((row,i)=>({
+      label: row.querySelector('[data-link-label]').value.trim(), position: i+1
+    })).filter(l=>l.label);
+
+    const oldLinksBlob = (original.links||[]).map(l=>l.label).join(';');
+    const newLinksBlob = newLinks.map(l=>l.label).join(';');
+    if(oldLinksBlob !== newLinksBlob){
+      await supabase.from('links').delete().eq('project_id', id);
+      if(newLinks.length){
+        await supabase.from('links').insert(newLinks.map(l=>({...l, project_id:id})));
+      }
+      logRows.push({ table_name:'links', row_id:id, champ:'liens utiles', ancienne_valeur:(original.links||[]).map(l=>l.label).join(' · '), nouvelle_valeur:newLinks.map(l=>l.label).join(' · '), auteur:author });
+    }
+
+    if(logRows.length){
+      await supabase.from('activity_log').insert(logRows);
+    }
+
+    // update local state
+    Object.assign(original, newVals, { updated_by: author });
+    original.actions = newActions.map((a,i)=>({...a, id: (original.actions[i]&&original.actions[i].id)||undefined}));
+    original.links = newLinks.map((l,i)=>({...l, id:(original.links[i]&&original.links[i].id)||undefined}));
+
+    renderAxes();
+    renderAgents();
+    renderStats();
+    const el = document.querySelector(`.project[data-project="${id}"]`);
+    if(el) el.open = true;
+    applyFilters();
+    toast("Modifications enregistrées.");
+  });
+}
+
+/* ---------------- people view ---------------- */
 
 function renderAgents(){
   const map = {};
   AXES.forEach(a => a.projects.forEach(p => {
-    p.pilotes.forEach(name => {
-      map[name] = map[name] || { pilote: [], contrib: [] };
-      map[name].pilote.push(p.titre);
-    });
-    (p.contributeurs||[]).forEach(name => {
-      map[name] = map[name] || { pilote: [], contrib: [] };
-      map[name].contrib.push(p.titre);
-    });
+    (p.pilotes||[]).forEach(name => { map[name] = map[name] || { pilote: [], contrib: [] }; map[name].pilote.push(p.titre); });
+    (p.contributeurs||[]).forEach(name => { map[name] = map[name] || { pilote: [], contrib: [] }; map[name].contrib.push(p.titre); });
   }));
   const names = Object.keys(map).sort((a,b)=>a.localeCompare(b,'fr'));
-  const container = document.getElementById('agentsContainer');
-  container.innerHTML = names.map(name => `
+  document.getElementById('agentsContainer').innerHTML = names.map(name => `
     <div class="agent-card">
-      <div class="agent-name">${name} <span class="agent-role">${map[name].pilote.length} pilotage(s) · ${map[name].contrib.length} contribution(s)</span></div>
-      ${map[name].pilote.length ? `<p class="contrib-line" style="margin-bottom:6px">Pilote sur :</p><ul>${map[name].pilote.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}
-      ${map[name].contrib.length ? `<p class="contrib-line" style="margin:10px 0 6px">Contributeur sur :</p><ul>${map[name].contrib.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}
+      <div class="agent-name">${esc(name)} <span class="agent-role">${map[name].pilote.length} pilotage(s) · ${map[name].contrib.length} contribution(s)</span></div>
+      ${map[name].pilote.length ? `<p class="contrib-line" style="margin-bottom:6px">Pilote sur :</p><ul>${map[name].pilote.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+      ${map[name].contrib.length ? `<p class="contrib-line" style="margin:10px 0 6px">Contributeur sur :</p><ul>${map[name].contrib.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>` : ''}
     </div>
   `).join('');
 }
 
-/* ---------- filtering ---------- */
+/* ---------------- filtering ---------------- */
 
 const activeStatuses = new Set();
 
@@ -1086,27 +698,9 @@ document.querySelectorAll('.chip-filter').forEach(btn=>{
   });
 });
 
-/* ---------- init ---------- */
+/* ---------------- init ---------------- */
 
-renderNav();
-renderStats();
-renderAxes();
-renderAgents();
-document.getElementById('syncDate').textContent = "11 septembre 2026";
-
-/* highlight active nav link on scroll */
-const navLinks = [...document.querySelectorAll('#axeNav a')];
-const sections = AXES.map(a => document.getElementById('axe'+a.num));
-const io = new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      navLinks.forEach(l=>l.classList.remove('active'));
-      const link = navLinks.find(l=>l.getAttribute('href') === '#'+e.target.id);
-      if(link) link.classList.add('active');
-    }
-  });
-}, { rootMargin: "-10% 0px -70% 0px" });
-sections.forEach(s => s && io.observe(s));
+loadAll();
 </script>
 </body>
 </html>
